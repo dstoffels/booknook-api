@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+# test
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

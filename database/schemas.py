@@ -5,6 +5,7 @@ from database.models import User, Car, Review, Favorite
 ma = Marshmallow()
 
 
+# test
 # Auth Schemas
 class RegisterSchema(ma.Schema):
     """

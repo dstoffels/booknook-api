@@ -8,6 +8,7 @@ from database.models import db
 from database.schemas import ma
 from resources.auth import LoginResource, RegisterResource
 from resources.cars import AllCarResource, UserCarResource
+from resources.books import BookInfoResource, UserReviewsResource, UserFavoritesResource
 from dotenv import load_dotenv
 from os import environ
 
@@ -16,9 +17,10 @@ load_dotenv()
 
 # Creates instances of additional libraries
 bcrypt = Bcrypt()
-jwt= JWTManager()
+jwt = JWTManager()
 cors = CORS()
 migrate = Migrate()
+
 
 def create_app():
     """
@@ -28,8 +30,8 @@ def create_app():
     app = Flask(__name__)
 
     # Loads config properties from .env file
-    app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('SQLALCHEMY_DATABASE_URI')
-    app.config['JWT_SECRET_KEY'] = environ.get('JWT_SECRET_KEY')
+    app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
+    app.config["JWT_SECRET_KEY"] = environ.get("JWT_SECRET_KEY")
 
     # Registers all routes with API
     api = create_routes()
@@ -51,10 +53,12 @@ def create_routes():
     Creates Flask Restful instance and registers all Resource routes
     """
     api = Api()
-    api.add_resource(RegisterResource, '/api/auth/register')
-    api.add_resource(LoginResource, '/api/auth/login')
-    api.add_resource(AllCarResource, '/api/cars')
-    api.add_resource(UserCarResource, '/api/user_cars')
-    # TODO: Create files for your Resources in resources folder, add them here
-    
+    api.add_resource(RegisterResource, "/api/auth/register")
+    api.add_resource(LoginResource, "/api/auth/login")
+    api.add_resource(AllCarResource, "/api/cars")
+    api.add_resource(UserCarResource, "/api/user_cars")
+    api.add_resource(UserReviewsResource, "/api/reviews")
+    api.add_resource(UserFavoritesResource, "/api/favorites")
+    api.add_resource(BookInfoResource, "/api/books/<string:book_id>")
+
     return api

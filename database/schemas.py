@@ -1,6 +1,6 @@
 from flask_marshmallow import Marshmallow
 from marshmallow import post_load, fields
-from database.models import User, Car
+from database.models import User, Car, Review, Favorite
 
 ma = Marshmallow()
 
@@ -84,6 +84,10 @@ class ReviewSchema(ma.Schema):
     class Meta:
         fields = ("id", "book_id", "text", "rating", "user")
 
+    @post_load
+    def create(self, data, **kwargs):
+        return Review(**data)
+
 
 review_schema = ReviewSchema()
 reviews_schema = ReviewSchema(many=True)
@@ -99,6 +103,10 @@ class FavoriteSchema(ma.Schema):
 
     class Meta:
         fields = ("id", "book_id", "title", "thumbnail_url", "user")
+
+    @post_load
+    def create(self, data, **kwargs):
+        return Favorite(**data)
 
 
 favorite_schema = FavoriteSchema()

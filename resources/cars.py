@@ -8,11 +8,12 @@ from database.schemas import car_schema, cars_schema
 class AllCarResource(Resource):
     def get(self):
         cars = Car.query.all()
-        make = request.args.get('make')
+        make = request.args.get("make")
         if make:
             cars = Car.query.filter_by(make=make)
         return cars_schema.dump(cars), 200
-    
+
+
 class UserCarResource(Resource):
     @jwt_required()
     def get(self):

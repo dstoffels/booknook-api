@@ -3,18 +3,22 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_req
 from flask_restful import Resource
 from database.models import db, Review, Favorite
 from database.schemas import review_schema, reviews_schema, favorite_schema, favorites_schema
+from marshmallow import ValidationError
 
 
 class UserReviewsResource(Resource):
     @jwt_required()
     def post(self):
-        user_id = get_jwt_identity()
-        data = request.get_json()
-        new_review = review_schema.load(data)
-        new_review.user_id = user_id
-        db.session.add(new_review)
-        db.session.commit()
-        return review_schema.dump(new_review), 201
+        try:
+            user_id = get_jwt_identity()
+            data = request.get_json()
+            new_review = review_schema.load(data)
+            new_review.user_id = user_id
+            db.session.add(new_review)
+            db.session.commit()
+            return review_schema.dump(new_review), 201
+        except ValidationError as e:
+            return {"messages": e.messages}, 400
 
 
 class UserFavoritesResource(Resource):
@@ -50,6 +54,6 @@ class BookInfoResource(Resource):
 
         return {
             "reviews": book_reviews,
-            "average_rating": avg_rating,
+            "average_rating": round(avg_rating, 1),
             "is_user_favorite": bool(fav),
         }, 200

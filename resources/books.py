@@ -24,19 +24,37 @@ class UserReviewsResource(Resource):
 class UserFavoritesResource(Resource):
     @jwt_required()
     def post(self):
-        user_id = get_jwt_identity()
-        data = request.get_json()
-        new_fav = favorite_schema.load(data)
-        new_fav.user_id = user_id
-        db.session.add(new_fav)
-        db.session.commit()
-        return favorite_schema.dump(new_fav), 201
+        try:
+            user_id = get_jwt_identity()
+            data = request.get_json()
+            fav = Favorite.query.filter_by(user_id=user_id, book_id=data["book_id"]).first()
+            if fav:
+                return "User already favorited this book", 400
+            new_fav = favorite_schema.load(data)
+            new_fav.user_id = user_id
+            db.session.add(new_fav)
+            db.session.commit()
+            return favorite_schema.dump(new_fav), 201
+        except ValidationError as e:
+            return {"messages": e.messages}, 400
 
     @jwt_required()
     def get(self):
         user_id = get_jwt_identity()
         user_favs = Favorite.query.filter_by(user_id=user_id)
         return favorites_schema.dump(user_favs), 200
+
+
+class FavoriteResource(Resource):
+    @jwt_required()
+    def delete(self, book_id):
+        user_id = get_jwt_identity()
+        fav = Favorite.query.filter_by(book_id=book_id, user_id=user_id).first()
+        if fav is None:
+            return "Unauthorized", 401
+        db.session.delete(fav)
+        db.session.commit()
+        return "", 204
 
 
 class BookInfoResource(Resource):
